@@ -268,7 +268,6 @@ def google_sign_out():
 	session.pop('user_id', None)
 	session.pop('user_gid', None)
 	session.pop('user_name', None)
-	session.pop('user_db_object', None)
 	return redirect(url_for('show_all_items'))
 
 @app.route('/credentials')
