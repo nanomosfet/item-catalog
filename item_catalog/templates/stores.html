@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>All Stores:</h1>
+{% for store in stores %}
+<p><a href="/stores/{{store.id}}">{{store.name}}</a></p>
+<p>
+	<a href="/stores/{{store.id}}/edit">Edit</a>
+	<a href="/stores/{{store.id}}/delete">Delete</a>
+</p>
+{% endfor %}
+{% endblock %}

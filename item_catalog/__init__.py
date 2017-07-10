@@ -1,0 +1,1 @@
+from .item_catalog import app

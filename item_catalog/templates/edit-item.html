@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Edit Item</h3>
+<form method="POST" action="/item/{{item.id}}/edit">
+    <label>Item Name
+        <input type="text" name="name" value="{{item.name}}">
+    </label>
+    <label>Category:
+        <input type="text" name="category" value="{{category}}">
+    </label>
+    <label>Description:
+        <textarea name="description">{{item.description}}</textarea>
+    </label>
+    <input type="submit" name="submit">
+</form>
+<p>{{error}}</p>
+{% endblock %}

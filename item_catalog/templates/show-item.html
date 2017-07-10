@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+<p>Item Name: {{item.name}}</p>
+<p>Item Description: {{item.description}}</p>
+<p>Item Category: {{item_category}}</p>
+<a href="/item/{{item.id}}/delete">Delete</a>
+<a href="/item/{{item.id}}/edit">Edit</a>
+{% endblock %}

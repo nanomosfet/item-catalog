@@ -1,0 +1,3 @@
+graft item_catalog/templates
+graft item_catalog/static
+include item_catalog/database_setup.py

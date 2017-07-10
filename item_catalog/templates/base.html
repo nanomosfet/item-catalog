@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- BEGIN Pre-requisites -->
+  <!-- END Pre-requisites -->
+	<title></title>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <meta name="google-signin-client_id" content="74998840507-ofm1jmee38bf6h08154bg4a6q2dqgkm9.apps.googleusercontent.com">
+
+</head>
+<body> 
+  <a href="/">home</a>  
+  <a href="/credentials">Manage Account</a>
+  {% if session['user_name'] %}  
+  <p>Signed in as {{session['user_name']}}</p>
+  {% endif %}
+	{% block content %}
+	{% endblock %}
+</body>
+</html>
