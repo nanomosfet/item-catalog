@@ -1,4 +1,5 @@
 # Item Catalog
+Made with Python's Flask Framework
 ### Instructions for setting this file up
 
 *Recommend using [virtualenv](https://virtualenv.pypa.io)*
