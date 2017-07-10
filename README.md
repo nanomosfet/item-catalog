@@ -16,3 +16,7 @@ export FLASK_APP=item_catalog
 ```
 flask run
 ```
+4. Is it tested? You bet it is.
+```
+python item_catalog/tests.py
+```
