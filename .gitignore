@@ -2,3 +2,4 @@ venv
 *.pyc
 item_catalog.egg-info
 catalog.db
+*.jpg
