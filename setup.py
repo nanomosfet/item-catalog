@@ -7,6 +7,7 @@ setup(
     install_requires=[
         'flask',
         'sqlalchemy',
-        'google-api-python-client'
+        'google-api-python-client',
+        'Pillow'
     ],
 )

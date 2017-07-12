@@ -13,5 +13,13 @@
     </label>
     <input type="submit" name="submit">
 </form>
+{% for photo in photos %}
+<img src='{{url_for("uploaded_photo", filename=photo.filename)}}'>
+{% endfor %}
+<h4>Upload a photo</h4>
+<form method='POST' action='{{url_for("upload_file", item_id=item.id)}}' enctype="multipart/form-data">
+    <input type="file" name="file">
+    <input type='submit' value='Upload'>
+</form>
 <p>{{error}}</p>
 {% endblock %}

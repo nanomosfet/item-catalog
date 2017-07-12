@@ -56,6 +56,16 @@ class Item(Base):
             'id': self.id,
             'user_id': self.user_id,
         }
+class Photo(Base):
+    __tablename__ = 'photos'
+    id = Column(Integer, primary_key=True)
+    filename = Column(String, nullable=False)
+    item_id = Column(Integer, ForeignKey('item.id'))
+
+    item = relationship("Item", back_populates="photos")
+
+Item.photos = relationship(
+    "Photo", order_by=Photo.id, back_populates="item")
 
 
 
