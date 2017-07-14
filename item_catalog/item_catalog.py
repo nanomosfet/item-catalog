@@ -1,8 +1,12 @@
-from flask import Flask, render_template, request, redirect, jsonify, url_for, session, g
+from flask import Flask, render_template, request, redirect, jsonify,\
+	 url_for, session, g, send_from_directory
 from sqlalchemy import create_engine, asc
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 from functools import wraps
+from werkzeug.utils import secure_filename
+from PIL import Image
+import os
 
 
 
@@ -10,8 +14,11 @@ from apiclient import discovery
 import httplib2
 from oauth2client import client, crypt
 
-from database_setup import Base, Item, Category, User
+from database_setup import Base, Item, Category, User, Photo
 
+UPLOAD_FOLDER = 'item_catalog/static/photos'
+
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 engine = create_engine('sqlite:///catalog.db')
 Base.metadata.bind = engine
 
@@ -24,10 +31,13 @@ app.config.from_object(__name__) # load config from this file , flaskr.py
 
 # Load default config and override config from an environment variable
 app.config.update(dict(
-    SECRET_KEY='whatwhat'
+    SECRET_KEY='whatwhat',
+    UPLOAD_FOLER=UPLOAD_FOLDER
 ))
 
-
+def allowed_file(filename):
+	return '.' in filename and \
+		filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 def clear_DB():
 	users = db_session.query(User).all()
 	categories = db_session.query(Category).all()
@@ -183,6 +193,7 @@ def edit_item(item_id):
 					'edit-item.html',
 					item=item,
 					category=category.name,
+					photos=item.photos,
 					error='You must fill out all fields!')
 			item.name = request.form['name']
 			item.description = request.form['description']
@@ -208,12 +219,16 @@ def edit_item(item_id):
 		'edit-item.html',
 		item=item,
 		category=category.name,
+		photos=item.photos,
 		error='')
 
 @app.route('/item/<int:item_id>/delete',methods=['GET','POST'])
 @only_signed_in
 def delete_item(item_id):
-	item = db_session.query(Item).filter_by(id=item_id).one()
+	try:
+		item = db_session.query(Item).filter_by(id=item_id).one()
+	except:
+		return 'Not a valid item'		
 	if is_users_item(item.id, session['user_id']):
 		if request.method == 'POST':
 			is_last_of_category = db_session.query(Item)\
@@ -228,6 +243,62 @@ def delete_item(item_id):
 	else:
 		return redirect(url_for('credentials'))
 	return render_template('delete-item.html', item=item)
+
+@app.route('/item/<int:item_id>/upload_photo', methods=['POST'])
+@only_signed_in
+def upload_file(item_id):
+	size = (300, 300)
+	try:
+		item = db_session.query(Item).filter_by(id=item_id).one()
+	except:
+		return 'Not a valid item'
+	if not is_users_item(item_id, session['user_id']):
+		return url_for('credentials')
+	if request.method == 'POST':
+		if 'file' not in request.files:
+			return redirect(request.url)
+		file = request.files['file']
+
+		if file.filename == '':
+			return redirect(request.url)
+		if file and allowed_file(file.filename):
+			filename = '%s_%s.jpg' % (item.id, len(item.photos))
+			image = Image.open(file)
+			image.thumbnail(size)
+			image.save(
+				'%s/%s' % (app.config['UPLOAD_FOLDER'], filename),
+				 'JPEG')
+
+			item = db_session.query(Item).filter_by(id=item_id).one()
+			item.photos.append(
+				Photo(filename=filename))
+			db_session.commit()
+			return redirect(
+				url_for('edit_item', item_id=item_id))
+
+@app.route('/item/<int:item_id>/delete_photo/<int:photo_id>', methods=['POST'])
+@only_signed_in
+def delete_photo(item_id, photo_id):
+	try:
+		item = db_session.query(Item).filter_by(id=item_id).one()
+		photo = db_session.query(Photo).filter_by(id=photo_id).one()
+	except:
+		return 'Not a valid item or photo'
+	if not is_users_item(item_id, session['user_id']):
+		return url_for('credentials')
+
+	# Delete photo from database
+	db_session.delete(photo)
+	db_session.commit()
+
+	# Delete photo from file
+	os.remove(
+		'%s/%s' % (app.config['UPLOAD_FOLDER'], photo.filename))
+
+	return redirect(url_for('edit_item', item_id=item_id))
+
+
+
 
 @app.route('/gconnect', methods=['POST'])
 def google_sign_in():
@@ -278,4 +349,8 @@ def credentials():
 def show_all_users():
 	users = db_session.query(User).all()
 	return jsonify(Users=[user.serialize for user in users])
+
+@app.route('/photo/<path:filename>')
+def uploaded_photo(filename):
+	return send_from_directory('static/photos', filename)
 

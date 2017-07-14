@@ -6,6 +6,9 @@
 {% for item in items %}
     <li>
         <a href="/item/{{item.id}}">{{item.name}}</a>
+        {% if item.photos|length > 0 %}
+            <img src='{{url_for("uploaded_photo", filename=item.photos[0].filename)}}'>
+        {% endif %}
     </li>
 {% endfor %}
 </ul>
