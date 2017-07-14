@@ -225,7 +225,10 @@ def edit_item(item_id):
 @app.route('/item/<int:item_id>/delete',methods=['GET','POST'])
 @only_signed_in
 def delete_item(item_id):
-	item = db_session.query(Item).filter_by(id=item_id).one()
+	try:
+		item = db_session.query(Item).filter_by(id=item_id).one()
+	except:
+		return 'Not a valid item'		
 	if is_users_item(item.id, session['user_id']):
 		if request.method == 'POST':
 			is_last_of_category = db_session.query(Item)\
@@ -249,6 +252,8 @@ def upload_file(item_id):
 		item = db_session.query(Item).filter_by(id=item_id).one()
 	except:
 		return 'Not a valid item'
+	if not is_users_item(item_id, session['user_id']):
+		return url_for('credentials')
 	if request.method == 'POST':
 		if 'file' not in request.files:
 			return redirect(request.url)
@@ -270,6 +275,30 @@ def upload_file(item_id):
 			db_session.commit()
 			return redirect(
 				url_for('edit_item', item_id=item_id))
+
+@app.route('/item/<int:item_id>/delete_photo/<int:photo_id>', methods=['POST'])
+@only_signed_in
+def delete_photo(item_id, photo_id):
+	try:
+		item = db_session.query(Item).filter_by(id=item_id).one()
+		photo = db_session.query(Photo).filter_by(id=photo_id).one()
+	except:
+		return 'Not a valid item or photo'
+	if not is_users_item(item_id, session['user_id']):
+		return url_for('credentials')
+
+	# Delete photo from database
+	db_session.delete(photo)
+	db_session.commit()
+
+	# Delete photo from file
+	os.remove(
+		'%s/%s' % (app.config['UPLOAD_FOLDER'], photo.filename))
+
+	return redirect(url_for('edit_item', item_id=item_id))
+
+
+
 
 @app.route('/gconnect', methods=['POST'])
 def google_sign_in():

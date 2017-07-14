@@ -15,7 +15,9 @@
 </form>
 {% for photo in photos %}
 <img src='{{url_for("uploaded_photo", filename=photo.filename)}}'>
-{% endfor %}
+<form method='POST' action='{{url_for("delete_photo", item_id=item.id, photo_id=photo.id)}}' enctype="multipart/form-data">
+    <input type='submit' value='Delete'>
+</form>{% endfor %}
 <h4>Upload a photo</h4>
 <form method='POST' action='{{url_for("upload_file", item_id=item.id)}}' enctype="multipart/form-data">
     <input type="file" name="file">
