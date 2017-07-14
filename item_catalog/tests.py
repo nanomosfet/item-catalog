@@ -1,6 +1,7 @@
 import os
 import unittest
 import item_catalog
+from StringIO import StringIO
 from database_setup import User
 
 
@@ -71,6 +72,32 @@ class item_catalog_tests(unittest.TestCase):
         assert b'Apple' not in post_result.data
         assert b'Banana' not in post_result.data
         assert b'Fruit' not in post_result.data
+
+    def test_photo_add_delete(self):
+        # TODO: Write tests for photo add and delete
+        self.login()
+        result = self.app.get('/add', follow_redirects=True)
+        assert b'Signed in as Timothy Searcy' in result.data
+        assert b'<h1>Add Item</h1>' in result.data
+        post_result = self.app.post('/add', data=dict(
+            name='Banana',
+            description='Yellow Curved',
+            category='Fruit'), follow_redirects=True)
+        assert b'Banana' in post_result.data
+        assert b'Fruit' in post_result.data
+        assert b'All Items:' in post_result.data
+        with open('item_catalog/test_files/1.jpg', 'rb') as test_photo:
+            imgStringIO = StringIO(test_photo.read())
+            print test_photo.read()
+        post_photo = self.app.post(
+            '/item/1/upload_photo',
+            content_type='multipart/form-data',
+            data=dict(
+                {'file': (imgStringIO, '1.jpg')}),
+            follow_redirects=True)
+        assert b'<img' in post_photo.data
+        delete_photo = self.app.post('/item/1/delete_photo/1', follow_redirects=True)
+        assert b'<img' not in delete_photo.data
 
 
 
