@@ -14,16 +14,12 @@ from apiclient import discovery
 import httplib2
 from oauth2client import client, crypt
 
-from database_setup import Base, Item, Category, User, Photo
+from database import init_db, db_session
+from models import Item, Category, User, Photo
 
 UPLOAD_FOLDER = 'item_catalog/static/photos'
-
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
-engine = create_engine('sqlite:///catalog.db')
-Base.metadata.bind = engine
-
-DBsession = sessionmaker(bind=engine)
-db_session = DBsession()
+init_db()
 
 
 app = Flask(__name__)
@@ -90,6 +86,11 @@ def only_signed_in(route_function):
 		else:
 			return redirect(url_for('credentials'))
 	return new_route_function
+
+
+@app.teardown_appcontext
+def shutdown_session(exception=None):
+    db_session.remove()
 
 @app.route('/')
 def show_all_items():

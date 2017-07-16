@@ -1,11 +1,7 @@
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Numeric, BigInteger
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, sessionmaker
-from sqlalchemy import create_engine
+from sqlalchemy.orm import relationship
 from datetime import datetime
-
-
-Base = declarative_base()
+from database import Base
 
 class Category(Base):
     __tablename__ = 'category'
@@ -65,22 +61,3 @@ class Photo(Base):
 
 Item.photos = relationship(
     "Photo", order_by=Photo.id, back_populates="item")
-
-
-
-
-
-engine = create_engine('sqlite:///catalog.db')
-Base.metadata.create_all(engine)
-DBSession = sessionmaker(bind=engine)
-
-
-
-
-
-
-
-
-
-
-

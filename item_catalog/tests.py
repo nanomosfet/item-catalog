@@ -2,7 +2,7 @@ import os
 import unittest
 import item_catalog
 from StringIO import StringIO
-from database_setup import User
+from models import User
 
 
 
