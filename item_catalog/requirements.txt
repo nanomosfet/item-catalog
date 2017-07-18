@@ -1,0 +1,5 @@
+Flask
+sqlalchemy
+Pillow
+gunicorn
+google-api-python-client

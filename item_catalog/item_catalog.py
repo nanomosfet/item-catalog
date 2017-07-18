@@ -17,7 +17,7 @@ from oauth2client import client, crypt
 from database import init_db, db_session
 from models import Item, Category, User, Photo
 
-UPLOAD_FOLDER = 'item_catalog/static/photos'
+UPLOAD_FOLDER = 'static/photos'
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 init_db()
 
