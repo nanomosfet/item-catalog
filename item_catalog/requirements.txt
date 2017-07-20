@@ -3,3 +3,4 @@ sqlalchemy
 Pillow
 gunicorn
 google-api-python-client
+psycopg2

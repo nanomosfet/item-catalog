@@ -8,6 +8,7 @@ setup(
         'flask',
         'sqlalchemy',
         'google-api-python-client',
-        'Pillow'
+        'Pillow',
+        'psycopg2'
     ],
 )

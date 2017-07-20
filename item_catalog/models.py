@@ -18,7 +18,7 @@ class Category(Base):
 class User(Base):
     __tablename__ = 'user'
     id = Column(Integer, primary_key = True)
-    gid = Column(BigInteger, nullable = False)
+    gid = Column(String(21), nullable = False)
     name = Column(String(80))
 
     @property
