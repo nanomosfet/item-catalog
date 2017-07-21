@@ -4,3 +4,4 @@ Pillow
 gunicorn
 google-api-python-client
 psycopg2
+google-cloud-storage

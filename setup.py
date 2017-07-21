@@ -9,6 +9,7 @@ setup(
         'sqlalchemy',
         'google-api-python-client',
         'Pillow',
-        'psycopg2'
+        'psycopg2',
+        'google-cloud-storage'
     ],
 )

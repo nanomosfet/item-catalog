@@ -1,12 +1,15 @@
 from flask import Flask, render_template, request, redirect, jsonify,\
-	 url_for, session, g, send_from_directory
+	 url_for, session, g, send_from_directory, send_file, Response
 from sqlalchemy import create_engine, asc
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 from functools import wraps
 from werkzeug.utils import secure_filename
 from PIL import Image
+from google.cloud import storage
 import os
+import io
+import StringIO as StringIO
 
 
 
@@ -19,6 +22,7 @@ from models import Item, Category, User, Photo
 
 UPLOAD_FOLDER = 'static/photos'
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
+CLOUD_STORAGE_BUCKET = os.environ['CLOUD_STORAGE_BUCKET']
 init_db()
 
 
@@ -240,6 +244,7 @@ def delete_item(item_id):
 						.filter_by(id=item.category_id).one())
 			db_session.delete(item)
 			db_session.commit()
+
 			return redirect('/')
 	else:
 		return redirect(url_for('credentials'))
@@ -264,15 +269,19 @@ def upload_file(item_id):
 			return redirect(request.url)
 		if file and allowed_file(file.filename):
 			filename = '%s_%s.jpg' % (item.id, len(item.photos))
-			image = Image.open(file)
-			image.thumbnail(size)
-			image.save(
-				'%s/%s' % (app.config['UPLOAD_FOLDER'], filename),
-				 'JPEG')
-
+			resized_file = open('temp-image.jpg')
 			item = db_session.query(Item).filter_by(id=item_id).one()
+			gcs = storage.Client()
+			bucket = gcs.get_bucket(CLOUD_STORAGE_BUCKET)
+			blob = bucket.blob(filename)
+			blob.upload_from_file(file,
+				content_type=file.content_type)
 			item.photos.append(
-				Photo(filename=filename))
+				Photo(
+					filename=filename,
+					public_url=blob.public_url)
+					)
+
 			db_session.commit()
 			return redirect(
 				url_for('edit_item', item_id=item_id))
@@ -287,14 +296,15 @@ def delete_photo(item_id, photo_id):
 		return 'Not a valid item or photo'
 	if not is_users_item(item_id, session['user_id']):
 		return url_for('credentials')
-
+	# Delete photo from file
+	sc = storage.Client()
+	bucket = sc.get_bucket(CLOUD_STORAGE_BUCKET)
+	blob = bucket.blob(photo.filename)
+	blob.delete()
 	# Delete photo from database
 	db_session.delete(photo)
 	db_session.commit()
 
-	# Delete photo from file
-	os.remove(
-		'%s/%s' % (app.config['UPLOAD_FOLDER'], photo.filename))
 
 	return redirect(url_for('edit_item', item_id=item_id))
 
@@ -353,5 +363,19 @@ def show_all_users():
 
 @app.route('/photo/<path:filename>')
 def uploaded_photo(filename):
-	return send_from_directory('static/photos', filename)
+	try:
+		photo = db_session.query(Photo)\
+			.filter_by(filename=filename).one()
+	except:
+		return 'There was an error with the photo.'
+	
+	return Response(io.BytesIO(photo.image_blob), mimetype='image/JPEG')
+	# return send_file(
+	# 	io.BytesIO(photo.image_blob),
+	# 	attachment_filename=photo.filename,
+	# 	mimetype='image/jpeg')
+
+@app.route('/<file>')
+def get_file(file):
+	return render_template(file)
 

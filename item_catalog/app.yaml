@@ -8,9 +8,11 @@ env_variables:
   # Replace user, password, database, and instance connection name with the values obtained
   # when configuring your Cloud SQL instance.
   SQLALCHEMY_DATABASE_URI: >-
-    postgresql+psycopg2://postgres:asdqwe123@/test?host=/cloudsql/rest-menuapp:us-central1:rest-menuapp
+    postgresql+psycopg2://postgres:asdqwe123@/localtest?host=/cloudsql/rest-menuapp:us-central1:rest-menuapp
+  CLOUD_STORAGE_BUCKET: rest-menuapp.appspot.com
 beta_settings:
   cloud_sql_instances: rest-menuapp:us-central1:rest-menuapp
+    
 handlers:
 - url: /static
   static_dir: static

@@ -1,4 +1,5 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Numeric, BigInteger
+from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, \
+    Numeric, BigInteger, LargeBinary, BLOB
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from database import Base
@@ -52,10 +53,12 @@ class Item(Base):
             'id': self.id,
             'user_id': self.user_id,
         }
+
 class Photo(Base):
     __tablename__ = 'photos'
     id = Column(Integer, primary_key=True)
     item_id = Column(Integer, ForeignKey('item.id'))
+    public_url = Column(String)
     filename = Column(String)
     item = relationship("Item", back_populates="photos")
 
