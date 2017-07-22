@@ -3,3 +3,4 @@ venv
 item_catalog.egg-info
 catalog.db
 *.jpg
+start_local_postgresql_connection.txt

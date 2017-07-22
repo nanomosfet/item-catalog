@@ -5,11 +5,13 @@ from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 from functools import wraps
 from werkzeug.utils import secure_filename
+from werkzeug.datastructures import FileStorage
 from PIL import Image
 from google.cloud import storage
 import os
 import io
 import StringIO as StringIO
+import random
 
 
 
@@ -268,14 +270,28 @@ def upload_file(item_id):
 		if file.filename == '':
 			return redirect(request.url)
 		if file and allowed_file(file.filename):
-			filename = '%s_%s.jpg' % (item.id, len(item.photos))
-			resized_file = open('temp-image.jpg')
+			filename = '%s_%s.jpg' % (item.id, random.randint(1,1000000000000))
 			item = db_session.query(Item).filter_by(id=item_id).one()
+
+			# Perform image resizing
+			image = Image.open(file)
+			image.thumbnail(size)
+
+			# Connect to storage bucket
 			gcs = storage.Client()
 			bucket = gcs.get_bucket(CLOUD_STORAGE_BUCKET)
 			blob = bucket.blob(filename)
-			blob.upload_from_file(file,
-				content_type=file.content_type)
+			
+			# Upload File to Google cloud storage
+			with io.BytesIO() as resized_image:	
+				image.save(resized_image, format='JPEG', progressive=True)
+				resized_image.seek(0)				
+				blob.upload_from_file(
+					resized_image,
+					content_type='image/jpeg')
+
+			
+			#Add Photo to database
 			item.photos.append(
 				Photo(
 					filename=filename,
