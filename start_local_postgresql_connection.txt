@@ -1,1 +1,0 @@
-.\cloud_sql_proxy.exe -instances=rest-menuapp:us-central1:rest-menuapp=tcp:5432 -credential_file=C:\Users\Tim\Downloads\RMA.json
