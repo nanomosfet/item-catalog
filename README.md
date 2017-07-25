@@ -17,6 +17,7 @@ $ pip install --editable .
 $ export FLASK_APP=item_catalog
 ```
 4. Set up your Database
+
 Export your SQLAlchemy database URI and Cloud Storage Bucket environment variables:
 ```
 $ export SQLALCHEMY_DATABASE_URI=postgresql+psycopg2://[USER]:[PASSWORD]@/[DATABASE]?host=/cloudsql/[INSTANCE NAME]
