@@ -16,11 +16,20 @@ pip install --editable .
 ```
 export FLASK_APP=item_catalog
 ```
-4. Now you can run the server
+4. Export your SQLAlchemy database URI and Cloud Storage Bucket environment variables
+```
+export SQLALCHEMY_DATABASE_URI=postgresql+psycopg2://[USER]:[PASSWORD]@/[DATABASE]?host=/cloudsql/[INSTANCE NAME]
+export CLOUD_STORAGE_BUCKET=[BUCKET NAME]
+```
+Note if you will be deploying this to a Google App Engine server make sure to edit the app.yaml file and include the environement variables in the file.
+
+For more info on using Cloud SQL and Cloud Storage please visit [Using Cloud Storage](https://cloud.google.com/appengine/docs/flexible/python/using-cloud-storage) [Using Cloud SQL - PostgreSQL](https://cloud.google.com/appengine/docs/flexible/python/using-cloud-sql-postgres)
+
+5. Now you can run the server
 ```
 flask run
 ```
-5. Is it tested? You bet it is.
+6. Is it tested? You bet it is.
 ```
 python item_catalog/tests.py
 ```
