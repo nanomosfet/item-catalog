@@ -2,9 +2,9 @@ import os
 import unittest
 import item_catalog
 from StringIO import StringIO
-from models import User
-
-
+from models import User, Photo, Item
+from database import db_session, init_db
+init_db()
 
 
 class item_catalog_tests(unittest.TestCase):
@@ -58,17 +58,19 @@ class item_catalog_tests(unittest.TestCase):
         assert b'Banana' in post_result.data
         assert b'Fruit' in post_result.data
         assert b'All Items:' in post_result.data
-        result = self.app.get('/item/1/edit', follow_redirects = True)
+        banana = db_session.query(Item).filter_by(name='Banana').one()
+
+        result = self.app.get('/item/%s/edit' % banana.id, follow_redirects = True)
         assert b'Banana' in result.data
         assert b'Fruit' in result.data
         assert b'Edit Item' in result.data
-        post_result = self.app.post('/item/1/edit', data=dict(
+        post_result = self.app.post('/item/%s/edit' % banana.id, data=dict(
             name='Apple',
             description='Red',
             category='Fruit'), follow_redirects=True)
         assert b'Apple' in post_result.data
         assert b'Banana' not in post_result.data
-        post_result = self.app.post('/item/1/delete', follow_redirects=True)
+        post_result = self.app.post('/item/%s/edit' % banana.id, follow_redirects=True)
         assert b'Apple' not in post_result.data
         assert b'Banana' not in post_result.data
         assert b'Fruit' not in post_result.data
@@ -77,7 +79,6 @@ class item_catalog_tests(unittest.TestCase):
         # TODO: Write tests for photo add and delete
         self.login()
         result = self.app.get('/add', follow_redirects=True)
-        assert b'Signed in as Timothy Searcy' in result.data
         assert b'<h1>Add Item</h1>' in result.data
         post_result = self.app.post('/add', data=dict(
             name='Banana',
@@ -86,17 +87,21 @@ class item_catalog_tests(unittest.TestCase):
         assert b'Banana' in post_result.data
         assert b'Fruit' in post_result.data
         assert b'All Items:' in post_result.data
+        banana = db_session.query(Item).filter_by(name='Banana').one()
         with open('item_catalog/test_files/1.jpg', 'rb') as test_photo:
             imgStringIO = StringIO(test_photo.read())
             print test_photo.read()
         post_photo = self.app.post(
-            '/item/1/upload_photo',
+            '/item/%s/upload_photo' % banana.id,
             content_type='multipart/form-data',
             data=dict(
                 {'file': (imgStringIO, '1.jpg')}),
             follow_redirects=True)
         assert b'<img' in post_photo.data
-        delete_photo = self.app.post('/item/1/delete_photo/1', follow_redirects=True)
+        banana = db_session.query(Item).filter_by(name='Banana').one()
+        delete_photo = self.app.post(
+            '/item/%s/delete_photo/%s' % (banana.id, banana.photos[0].id),
+            follow_redirects=True)
         assert b'<img' not in delete_photo.data
 
 
@@ -104,13 +109,6 @@ class item_catalog_tests(unittest.TestCase):
     def test_add_item_no_login(self):
         result = self.app.get('/add', follow_redirects=True)
         assert b'<h1>Credentials Page</h1>' in result.data
-
-
-
-
-
-
-
 
     def test_show_items_by_category(self):
         result = self.app.get('/category/JSON')
