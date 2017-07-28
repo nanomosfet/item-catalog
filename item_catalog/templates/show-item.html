@@ -3,6 +3,9 @@
 <p>Item Name: {{item.name}}</p>
 <p>Item Description: {{item.description}}</p>
 <p>Item Category: {{item_category}}</p>
+{% for photo in photos %}
+<img src='{{photo.public_url}}'>
+{% endfor %}
 <a href="/item/{{item.id}}/delete">Delete</a>
 <a href="/item/{{item.id}}/edit">Edit</a>
 {% endblock %}
