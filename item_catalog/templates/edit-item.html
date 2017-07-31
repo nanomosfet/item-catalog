@@ -5,6 +5,9 @@
     <label>Item Name
         <input type="text" name="name" value="{{item.name}}">
     </label>
+    <label>Item Price
+        <input type="text" name="price" value="{{item.price}}">
+    </label>
     <label>Category:
         <input type="text" name="category" value="{{category}}">
     </label>
@@ -13,11 +16,12 @@
     </label>
     <input type="submit" name="submit">
 </form>
-{% for photo in photos %}
+{% for photo in item.photos %}
 <img src='{{photo.public_url}}'>
 <form method='POST' action='{{url_for("delete_photo", item_id=item.id, photo_id=photo.id)}}' enctype="multipart/form-data">
     <input type='submit' value='Delete'>
-</form>{% endfor %}
+</form>
+{% endfor %}
 <h4>Upload a photo</h4>
 <form method='POST' action='{{url_for("upload_file", item_id=item.id)}}' enctype="multipart/form-data">
     <input type="file" name="file">

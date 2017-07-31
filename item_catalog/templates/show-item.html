@@ -2,6 +2,7 @@
 {% block content %}
 <p>Item Name: {{item.name}}</p>
 <p>Item Description: {{item.description}}</p>
+<p>Item Description: {{item.price}}</p>
 <p>Item Category: {{item_category}}</p>
 {% for photo in item.photos %}
 <img src='{{photo.public_url}}'>

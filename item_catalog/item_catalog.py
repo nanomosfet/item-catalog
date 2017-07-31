@@ -161,11 +161,17 @@ def show_single_item_JSON(item_id):
 def add_item():
 	if request.method == 'POST':
 		if not (request.form['name'] and request.form['description'] and \
-			request.form['category']):
+			request.form['category'] and request.form['price']):
 			return render_template(
 				'add-item.html',
 				error='You must fill out all fields!')
 
+		try:
+			float(request.form['price'])
+		except ValueError:
+			return render_template(
+				'add-item.html',
+				error='Price is not valid!')
 		new_category = request.form['category'].capitalize()
 		if db_session.query(Category).filter_by(name=new_category).count() == 0:
 			category = Category(name=new_category)
@@ -175,6 +181,7 @@ def add_item():
 
 		new_item = Item(
 			name=request.form['name'],
+			price=round(float(request.form['price']), 2),
 			description=request.form['description'],
 			category=category,
 			date_created=datetime.now(),
@@ -203,6 +210,15 @@ def edit_item(item_id):
 					photos=item.photos,
 					error='You must fill out all fields!')
 			item.name = request.form['name']
+			try:
+				item.price = round(float(request.form['price']), 2)
+			except ValueError:
+				return render_template(
+					'edit-item.html',
+					item=item,
+					category=category.name,
+					photos=item.photos,
+					error='Price you entered is not Valid!')
 			item.description = request.form['description']
 			item.date_updated = datetime.now()
 			new_category_name = request.form['category']

@@ -5,7 +5,7 @@
 <ul>
 {% for item in items %}
     <li>
-        <a href="/item/{{item.id}}">{{item.name}}</a>
+        <a href="/item/{{item.id}}">{{item.name}} ${{item.price}}</a>
         {% if item.photos|length > 0 %}
             <img src='{{item.photos[0].public_url}}'>
         {% endif %}
