@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block content %}
+<form method="POST" action="/item/{{item.id}}/deletefromcart">
+    <p>Are you sure you want to delete {{item.name}} from your cart?</p>
+    <input type="submit" name="delete" value="Delete">
+</form>
+{% endblock %}

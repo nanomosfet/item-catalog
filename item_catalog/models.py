@@ -55,6 +55,7 @@ class Item(Base):
             'user_id': self.user_id,
         }
 
+
 class Photo(Base):
     __tablename__ = 'photos'
     id = Column(Integer, primary_key=True)
@@ -65,3 +66,14 @@ class Photo(Base):
 
 Item.photos = relationship(
     "Photo", order_by=Photo.id, back_populates="item")
+
+# class Shopping_Cart(Base):
+#     __tablename__ = 'shopping_cart'
+#     id = Column(Integer, primary_key=True)
+#     user_id = Column(Integer, ForeignKey('user.id'))
+#     item_id = Column(Integer, ForeignKey('item.id'))
+#     user = relationship(User, back_populates="shopping_cart")
+#     items = relationship(Item)
+
+User.shopping_cart = relationship(
+    "Item")

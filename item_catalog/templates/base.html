@@ -11,7 +11,8 @@
 <body> 
   <a href="/">home</a>  
   <a href="/credentials">Manage Account</a>
-  {% if session['user_name'] %}  
+  {% if session['user_name'] %}
+  <a href="{{url_for('show_cart')}}">Cart</a>
   <p>Signed in as {{session['user_name']}}</p>
   {% endif %}
 	{% block content %}

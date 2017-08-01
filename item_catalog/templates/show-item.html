@@ -9,4 +9,5 @@
 {% endfor %}
 <a href="/item/{{item.id}}/delete">Delete</a>
 <a href="/item/{{item.id}}/edit">Edit</a>
+<a href="{{url_for('add_to_cart', item_id = item.id)}}">Add to cart</a>
 {% endblock %}

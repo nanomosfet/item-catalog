@@ -393,21 +393,54 @@ def show_all_users():
 	users = db_session.query(User).all()
 	return jsonify(Users=[user.serialize for user in users])
 
-@app.route('/photo/<path:filename>')
-def uploaded_photo(filename):
+@app.route('/item/<int:item_id>/addtocart', methods=['GET','POST'])
+@only_signed_in
+def add_to_cart(item_id):
 	try:
-		photo = db_session.query(Photo)\
-			.filter_by(filename=filename).one()
+		item = db_session.query(Item).filter_by(id=item_id).one()
 	except:
-		return 'There was an error with the photo.'
-	
-	return Response(io.BytesIO(photo.image_blob), mimetype='image/JPEG')
-	# return send_file(
-	# 	io.BytesIO(photo.image_blob),
-	# 	attachment_filename=photo.filename,
-	# 	mimetype='image/jpeg')
+		return "Not a valid item"
 
-@app.route('/<file>')
-def get_file(file):
-	return render_template(file)
+	try:
+		user = db_session.query(User).filter_by(id=session['user_id']).one()
+	except:
+		return "Not a valid User"
 
+	if request.method == 'POST':
+		user.shopping_cart.append(item)
+		db_session.commit()
+
+		return redirect(url_for('show_cart'))
+	else:
+		return render_template('add-to-cart.html', item=item)
+
+@app.route('/item/<int:item_id>/deletefromcart', methods=['GET','POST'])
+@only_signed_in
+def delete_from_cart(item_id):
+	try:
+		item = db_session.query(Item).filter_by(id=item_id).one()
+	except:
+		return "Not a valid item"
+
+	try:
+		user = db_session.query(User).filter_by(id=session['user_id']).one()
+	except:
+		return "Not a valid User"
+
+	if request.method == 'POST':
+		user.shopping_cart.remove(item)
+		db_session.commit()
+		return redirect(url_for('show_cart'))
+	else:
+		return render_template('delete-from-cart.html', item=item)
+
+
+@app.route('/showcart')
+@only_signed_in
+def show_cart():
+	try:
+		user = db_session.query(User).filter_by(id=session['user_id']).one()
+	except:
+		return "Not a valid User"
+
+	return render_template('show-cart.html', user=user)

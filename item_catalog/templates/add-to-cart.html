@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block content %}
+<form method="POST" action="{{url_for('add_to_cart', item_id=item.id)}}">
+    <p>Are you sure you want to add {{item.name}} to your cart?</p>
+    <input type="submit" name="add-to-cart" value="Add">
+</form>
+{% endblock %}
