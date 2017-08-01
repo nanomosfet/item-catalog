@@ -19,13 +19,14 @@ from apiclient import discovery
 import httplib2
 from oauth2client import client, crypt
 
-from database import init_db, db_session
+from database import init_db, db_session, drop_all
 from models import Item, Category, User, Photo, Shopping_Cart_Item
 
 UPLOAD_FOLDER = 'static/photos'
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 CLOUD_STORAGE_BUCKET = os.environ['CLOUD_STORAGE_BUCKET']
 init_db()
+
 
 
 app = Flask(__name__)
@@ -41,16 +42,18 @@ def allowed_file(filename):
 	return '.' in filename and \
 		filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 def clear_DB():
-	users = db_session.query(User).all()
-	categories = db_session.query(Category).all()
-	items = db_session.query(Item).all()
-	for user in users:
-		db_session.delete(user)
-	for item in items:
-		db_session.delete(item)
-	for c in categories:
-		db_session.delete(c)
-	db_session.commit()
+	# users = db_session.query(User).all()
+	# categories = db_session.query(Category).all()
+	# items = db_session.query(Item).all()
+	# for user in users:
+	# 	db_session.delete(user)
+	# for item in items:
+	# 	db_session.delete(item)
+	# for c in categories:
+	# 	db_session.delete(c)
+	# db_session.commit()
+	drop_all()
+	init_db()
 
 def is_users_item(item_id, user_id):
 	"""Check if item belongs to user.
