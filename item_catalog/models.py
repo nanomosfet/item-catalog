@@ -42,6 +42,7 @@ class Item(Base):
     date_updated = Column(DateTime)
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
+    carts = relationship('Shopping_Cart_Item', cascade='all,delete', back_populates='item')
 
     @property
     def serialize(self):
@@ -67,13 +68,13 @@ class Photo(Base):
 Item.photos = relationship(
     "Photo", order_by=Photo.id, back_populates="item")
 
-# class Shopping_Cart(Base):
-#     __tablename__ = 'shopping_cart'
-#     id = Column(Integer, primary_key=True)
-#     user_id = Column(Integer, ForeignKey('user.id'))
-#     item_id = Column(Integer, ForeignKey('item.id'))
-#     user = relationship(User, back_populates="shopping_cart")
-#     items = relationship(Item)
+class Shopping_Cart_Item(Base):
+    __tablename__ = 'shopping_cart'
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('user.id'))
+    item_id = Column(Integer, ForeignKey('item.id'))
+    user = relationship(User)
+    item = relationship(Item)
 
 User.shopping_cart = relationship(
-    "Item")
+    "Shopping_Cart_Item")

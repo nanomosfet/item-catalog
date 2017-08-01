@@ -1,8 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
 <h3>Show Cart</h3>
-{% for item in user.shopping_cart %}
-    <p>{{item.name}}</p>
-    <a href="{{url_for('delete_from_cart', item_id=item.id)}}">Delete from cart</a>
+{% for cart in user.shopping_cart %}
+    <p>{{cart.item.name}}</p>
+    <p>${{cart.item.price}}</p>
+    <a href="{{url_for('delete_from_cart', cart_id=cart.id)}}">Delete from cart</a>
 {% endfor %}
+<p>Total ${{total}}</p>
 {% endblock %}

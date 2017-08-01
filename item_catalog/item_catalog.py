@@ -20,7 +20,7 @@ import httplib2
 from oauth2client import client, crypt
 
 from database import init_db, db_session
-from models import Item, Category, User, Photo
+from models import Item, Category, User, Photo, Shopping_Cart_Item
 
 UPLOAD_FOLDER = 'static/photos'
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
@@ -407,18 +407,20 @@ def add_to_cart(item_id):
 		return "Not a valid User"
 
 	if request.method == 'POST':
-		user.shopping_cart.append(item)
-		db_session.commit()
-
-		return redirect(url_for('show_cart'))
+			user.shopping_cart.append(
+				Shopping_Cart_Item(
+					user=user,
+					item=item))
+			db_session.commit()
+			return redirect(url_for('show_cart'))
 	else:
 		return render_template('add-to-cart.html', item=item)
 
-@app.route('/item/<int:item_id>/deletefromcart', methods=['GET','POST'])
+@app.route('/deletefromcart/<int:cart_id>', methods=['GET','POST'])
 @only_signed_in
-def delete_from_cart(item_id):
+def delete_from_cart(cart_id):
 	try:
-		item = db_session.query(Item).filter_by(id=item_id).one()
+		cart = db_session.query(Shopping_Cart_Item).filter_by(id=cart_id).one()
 	except:
 		return "Not a valid item"
 
@@ -428,11 +430,11 @@ def delete_from_cart(item_id):
 		return "Not a valid User"
 
 	if request.method == 'POST':
-		user.shopping_cart.remove(item)
+		user.shopping_cart.remove(cart)
 		db_session.commit()
 		return redirect(url_for('show_cart'))
 	else:
-		return render_template('delete-from-cart.html', item=item)
+		return render_template('delete-from-cart.html', cart=cart)
 
 
 @app.route('/showcart')
@@ -442,5 +444,10 @@ def show_cart():
 		user = db_session.query(User).filter_by(id=session['user_id']).one()
 	except:
 		return "Not a valid User"
-
-	return render_template('show-cart.html', user=user)
+	total = 0
+	for cart in user.shopping_cart:
+		total = total + cart.item.price
+	return render_template(
+		'show-cart.html',
+		user=user,
+		total=total)
